@@ -26,7 +26,6 @@ def elevador():
 @app.route('/analisador', methods=['POST'])
 def analisador():
     data = request.get_json()
-    print(data["bloco"])
     return analise(data["bloco"]) , 200
 
 if __name__ == '__main__':

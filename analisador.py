@@ -17,10 +17,6 @@ def analise(bloco):
 
 
 def lex(bloco, tokens=[], lendo=""):
-    """if bloco[0] == "s" and lendo == "":
-        return lex(bloco[1:], tokens, lendo = "s")
-    elif bloco[0] == "e" and lendo == "s":
-        return lex(bloco[1:], tokens, lendo = "se")"""
     if bloco[0] == "(" and lendo == "se":
         tokens.append(plv_reserv("se"))
         tokens.append(simbolo("("))
@@ -81,11 +77,25 @@ def lex(bloco, tokens=[], lendo=""):
                 return lex(bloco[1:], tokens, lendo="")
             except:
                 return tokens
+    elif bloco[0] == ")" and lendo == "":
+        try:
+            tokens.append(simbolo(")"))
+            try:
+                return lex(bloco[1:], tokens, lendo="")
+            except:
+                return tokens
+        except:
+            tokens.append(identificadores(lendo))
+            tokens.append(simbolo(")"))
+            try:
+                return lex(bloco[1:], tokens, lendo="")
+            except:
+                return tokens
     elif bloco[0] == ";" and lendo != "":
         try:
             float(lendo)
             tokens.append(numerico(lendo))
-            tokens.append(simbolo(";"))
+            tokens.append(simbolo(";")) 
             try:
                 return lex(bloco[1:], tokens, lendo="")
             except:
@@ -113,6 +123,12 @@ def lex(bloco, tokens=[], lendo=""):
                 return lex(bloco[1:], tokens, lendo="")
             except:
                 return tokens
+    elif bloco[0] == "\"" and lendo == "":
+        tokens.append(simbolo("\""))
+        try:
+            return lex(bloco[1:], tokens, lendo="")
+        except:
+            return tokens
     elif bloco[0] == "=" and lendo in COMPARE:
         tokens.append(simbolo(lendo + bloco[0]))
         try:
@@ -128,7 +144,7 @@ def lex(bloco, tokens=[], lendo=""):
 
     elif bloco[0] in COMPARE and lendo != "":
         try:
-            float(lendo)
+            float(lendo[0])
             tokens.append(numerico(lendo))
             try:
                 return lex(bloco[1:], tokens, lendo=bloco[0])
@@ -153,6 +169,18 @@ def lex(bloco, tokens=[], lendo=""):
         try:
             return lex(bloco[1:], tokens, lendo="")
         except:
+            return tokens
+    elif (bloco[0] in NUMEROS and lendo == ""):
+        try:
+            return lex(bloco[1:], tokens, lendo=lendo + bloco[0])
+        except:
+            tokens.append(numerico(bloco[0]))
+            return tokens
+    elif lendo != "" and lendo[0] in NUMEROS:
+        try:
+            return lex(bloco[1:], tokens, lendo=lendo + bloco[0])
+        except:
+            tokens.append(numerico(lendo + bloco[0]))
             return tokens
     elif ((bloco[0] in ALFABETO) or (bloco[0] in NUMEROS)):
         try:
@@ -188,8 +216,14 @@ def identificador_de_erros(entrada):
         return [(";", "Falta no final do bloco")]
     elif (entrada.count((")", "simbolo")) != entrada.count(("(", "simbolo"))):
         return [("(  )", FRASE_OCO)]
-    elif entrada.count(("\"", "simbolo"))%2 == 0:
+    elif entrada.count(("\"", "simbolo"))%2 != 0:
         return [("  \"  ", "String Quebrada")]
+    for x in entrada:
+        if x[1] == 'numerico':
+            try:
+                float(x[0])
+            except:
+                return [(x[0], "Não é um tipo numérico")]
     """
     if entrada.count(("\"", "simbolo")) == entrada.count(("\"", "simbolo")):
         return [("  \"  ", "String Quebrada")]
@@ -197,8 +231,4 @@ def identificador_de_erros(entrada):
 
 
     return None
-
-
-print(analise("enquanto(12.3a!=Teste\");"))
-# print("Teste do Teste"[2:])
 
