@@ -25,8 +25,11 @@ def elevador():
 
 @app.route('/analisador', methods=['POST'])
 def analisador():
+    analisado = None
+    data = None
     data = request.get_json()
-    return analise(data["bloco"]) , 200
+    analisado = analise(data["bloco"])
+    return analisado , 200
 
 if __name__ == '__main__':
     app.run(debug=True)
